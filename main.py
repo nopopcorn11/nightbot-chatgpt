@@ -5,17 +5,17 @@ import os
 app = Flask(__name__)
 
 # Set OpenAI API key
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route("/ask", methods=["GET"])
 def ask():
     question = request.args.get("q", "").strip()
-    
+
     if not question:
         return jsonify({"response": "Please provide a question after !ask"}), 400
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "Provide a response under 400 characters."},
@@ -23,11 +23,11 @@ def ask():
             ],
             max_tokens=100
         )
-        answer = response["choices"][0]["message"]["content"].strip()
-        
+        answer = response.choices[0].message.content.strip()
+
         return jsonify({"response": answer[:400]})  # Ensure response is under 400 characters
 
-    except openai.error.OpenAIError as e:
+    except openai.OpenAIError as e:
         print(f"OpenAI API Error: {e}")  # Log OpenAI errors
         return jsonify({"response": "Error generating response"}), 500
 
