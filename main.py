@@ -15,7 +15,7 @@ def ask():
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4",  # Changed to gpt-4
+            model="gpt-4-turbo",  # Changed to gpt-4-turbo
             messages=[
                 {"role": "system", "content": "Respond concisely and directly with only the answer."},
                 {"role": "user", "content": question}
