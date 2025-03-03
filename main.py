@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-# Set OpenAI API key from environment variables
+# Set OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route("/ask", methods=["GET"])
@@ -21,14 +21,19 @@ def ask():
                 {"role": "system", "content": "Provide a response under 400 characters."},
                 {"role": "user", "content": question}
             ],
-            max_tokens=100  # Adjusted for concise answers
+            max_tokens=100
         )
         answer = response["choices"][0]["message"]["content"].strip()
         
-        return jsonify({"response": answer[:400]})  # Trim to ensure < 400 characters
+        return jsonify({"response": answer[:400]})  # Ensure response is under 400 characters
+
+    except openai.error.OpenAIError as e:
+        print(f"OpenAI API Error: {e}")  # Log OpenAI errors
+        return jsonify({"response": "Error generating response"}), 500
 
     except Exception as e:
-        return jsonify({"response": "Error generating response"}), 500
+        print(f"General Error: {e}")  # Log any other errors
+        return jsonify({"response": "An error occurred"}), 500
 
 # Ensure the correct port for Koyeb
 if __name__ == "__main__":
